@@ -82,6 +82,30 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
 
     private int mClockPosition = CLOCK_DATE_POSITION_DEFAULT;
 
+    // Custom Carrier
+    private View mCustomCarrierLabel;
+    private int mShowCarrierLabel;
+
+    private final Handler mHandler = new Handler();
+
+    private class CustomSettingsObserver extends ContentObserver {
+        CustomSettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            getContext().getContentResolver().registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CARRIER),
+                    false, this, UserHandle.USER_ALL);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            updateSettings(true);
+        }
+    }
+    private CustomSettingsObserver mCustomSettingsObserver = new CustomSettingsObserver(mHandler);
+
     private SignalCallback mSignalCallback = new SignalCallback() {
         @Override
         public void setIsAirplaneMode(NetworkController.IconState icon) {
@@ -150,6 +174,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         SettingsObserver observer = new SettingsObserver(new Handler());
         observer.observe();
         mResolver = getContext().getContentResolver();
+        mCustomSettingsObserver.observe();
     }
 
     @Override
@@ -174,6 +199,8 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         mClockLeft = (Clock) mStatusBar.findViewById(R.id.left_clock);
         mCenterClockLayout = mStatusBar.findViewById(R.id.center_clock_layout);
         Dependency.get(DarkIconDispatcher.class).addDarkReceiver(mSignalClusterView);
+        mCustomCarrierLabel = mStatusBar.findViewById(R.id.statusbar_carrier_text);
+        updateSettings(false);
         // Default to showing until we know otherwise.
         showSystemIconArea(false);
         initEmergencyCryptkeeperText();
@@ -445,5 +472,11 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         mClockDefault.setShowDateSizeSmall(small);
         mClockCentered.setShowDateSizeSmall(small);
         mClockLeft.setShowDateSizeSmall(small);
+    }
+
+    public void updateSettings(boolean animate) {
+        mShowCarrierLabel = Settings.System.getIntForUser(
+                getContext().getContentResolver(), Settings.System.STATUS_BAR_CARRIER, 1,
+                UserHandle.USER_CURRENT);
     }
 }
