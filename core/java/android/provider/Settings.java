@@ -3993,6 +3993,12 @@ public final class Settings {
         public static final String  RECENTS_CLEAR_ALL_LOCATION = "recents_clear_all_location";
 
         /**
+         * Which recents style to use
+         * @hide
+         */
+        public static final String RECENTS_LAYOUT_STYLE = "recents_layout_style";
+
+        /**
          * Wether to show clock seconds on the status bar
          * 0: Hide
          * 1: Show
