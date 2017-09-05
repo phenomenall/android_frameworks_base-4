@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Copyright (C) 2017 DarkKat
+       Copyright (C) 2018 ToxycOS Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -20,4 +21,13 @@
 
     <!-- config for showing AM/PM in 12hour format -->
     <bool name="config_showAmpm">true</bool>
+
+    <!-- The min animation duration for animating the fab in. -->
+    <integer name="recents_animate_fab_enter_duration">225</integer>
+    <!-- The animation delay for animating the fab in. This should roughly be the animation
+     duration of the transition in to recents. -->
+    <integer name="recents_animate_fab_enter_delay">275</integer>
+    <!-- The min animation duration for animating the fab out. -->
+    <integer name="recents_animate_fab_exit_duration">125</integer>
+
 </resources>
