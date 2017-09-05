@@ -3981,6 +3981,18 @@ public final class Settings {
         public static final String STATUS_BAR_CLOCK_DATE_POSITION = "status_bar_clock_date_position";
 
         /**
+         * show clear all recents button
+         * @hide
+         */
+        public static final String SHOW_CLEAR_ALL_RECENTS = "show_clear_all_recents";
+
+        /**
+         * location of the clear all rectents button
+         * @hide
+         */
+        public static final String  RECENTS_CLEAR_ALL_LOCATION = "recents_clear_all_location";
+
+        /**
          * Wether to show clock seconds on the status bar
          * 0: Hide
          * 1: Show
