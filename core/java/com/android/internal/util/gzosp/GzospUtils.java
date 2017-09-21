@@ -32,6 +32,8 @@ import android.net.ConnectivityManager;
 import android.util.DisplayMetrics;
 import android.view.DisplayInfo;
 import android.view.WindowManager;
+import android.view.IWindowManager;
+import android.view.WindowManagerGlobal;
 
 import java.util.List;
 import java.util.Locale;
@@ -42,6 +44,9 @@ public class GzospUtils {
     private static final int DEVICE_PHONE = 0;
     private static final int DEVICE_HYBRID = 1;
     private static final int DEVICE_TABLET = 2;
+
+    public static final String INTENT_SCREENSHOT = "action_take_screenshot";
+    public static final String INTENT_REGION_SCREENSHOT = "action_take_region_screenshot";
 
     public static boolean isChineseLanguage() {
        return Resources.getSystem().getConfiguration().locale.getLanguage().startsWith(
@@ -93,6 +98,15 @@ public class GzospUtils {
 
     public static boolean isPackageInstalled(Context context, String pkg) {
         return isPackageInstalled(context, pkg, true);
+    }
+
+    public static void takeScreenshot(boolean full) {
+        IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
+        try {
+            wm.sendCustomAction(new Intent(full? INTENT_SCREENSHOT : INTENT_REGION_SCREENSHOT));
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     private static int getScreenType(Context context) {
