@@ -240,10 +240,17 @@ public class BatteryMeterView extends LinearLayout implements
     }
 
     private void updateShowPercent() {
-        final boolean showing = mBatteryPercentView != null;
-        if (forcePercentageQsHeader()
-                || (mStyle != BatteryMeterDrawableBase.BATTERY_STYLE_HIDDEN && (mShowPercentText || mForceShowPercent))) {
-            if (!showing) {
+        final boolean hideText = Settings.Secure.getIntForUser(
+                getContext().getContentResolver(), STATUS_BAR_BATTERY_STYLE, 0, mUser) == 7;
+        final boolean showingText = Settings.Secure.getIntForUser(
+                getContext().getContentResolver(), STATUS_BAR_BATTERY_STYLE, 0, mUser) == 6;
+        final boolean showingInside = Settings.System.getIntForUser(
+                getContext().getContentResolver(), SHOW_BATTERY_PERCENT, 0, mUser) == 2;
+        final boolean showingOutside = mBatteryPercentView != null;
+        if (0 != Settings.System.getIntForUser(getContext().getContentResolver(),
+                SHOW_BATTERY_PERCENT, 0, mUser) || mForceShowPercent || showingText || hideText) {
+            if (!showingOutside) {
+                mDrawable.setShowPercent(false);
                 mBatteryPercentView = loadPercentView();
                 if (mTextColor != 0) mBatteryPercentView.setTextColor(mTextColor);
                 updatePercentText();
@@ -253,11 +260,26 @@ public class BatteryMeterView extends LinearLayout implements
                                 LayoutParams.WRAP_CONTENT,
                                 LayoutParams.MATCH_PARENT));
             }
-        } else {
-            if (showing) {
+            if (showingInside && !showingText && !mForceShowPercent) {
+                mDrawable.setShowPercent(true);
                 removeView(mBatteryPercentView);
                 mBatteryPercentView = null;
             }
+            if (hideText && !showingText && !mForceShowPercent) {
+                mDrawable.setShowPercent(false);
+                removeView(mBatteryPercentView);
+                mBatteryPercentView = null;
+            }
+        } else {
+            if (showingOutside || !showingInside) {
+                mDrawable.setShowPercent(false);
+                removeView(mBatteryPercentView);
+                mBatteryPercentView = null;
+            }
+        }
+        if (mBatteryPercentView != null) {
+            mBatteryPercentView.setPaddingRelative(0, 0,
+                    showingText || hideText ? 0 : mEndPadding, 0);
         }
 
         // Fix padding dinamically. It's safe to call this here because View.setPadding doesn't call a
