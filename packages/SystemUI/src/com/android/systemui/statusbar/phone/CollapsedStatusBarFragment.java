@@ -22,7 +22,13 @@ import static com.android.systemui.statusbar.phone.StatusBar.reinflateSignalClus
 import android.annotation.Nullable;
 import android.app.Fragment;
 import android.app.StatusBarManager;
+import android.content.ContentResolver;
+import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +42,7 @@ import com.android.systemui.SysUiServiceProvider;
 import com.android.systemui.statusbar.CommandQueue;
 import com.android.systemui.statusbar.SignalClusterView;
 import com.android.systemui.statusbar.phone.StatusBarIconController.DarkIconManager;
+import com.android.systemui.statusbar.policy.Clock;
 import com.android.systemui.statusbar.policy.DarkIconDispatcher;
 import com.android.systemui.statusbar.policy.EncryptionHelper;
 import com.android.systemui.statusbar.policy.KeyguardMonitor;
@@ -51,6 +58,11 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
 
     public static final String TAG = "CollapsedStatusBarFragment";
     private static final String EXTRA_PANEL_STATE = "panel_state";
+
+    private static final int CLOCK_DATE_POSITION_DEFAULT  = 0;
+    private static final int CLOCK_DATE_POSITION_CENTERED = 1;
+    private static final int CLOCK_DATE_POSITION_HIDDEN   = 2;
+
     private PhoneStatusBarView mStatusBar;
     private KeyguardMonitor mKeyguardMonitor;
     private NetworkController mNetworkController;
@@ -60,6 +72,13 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
     private StatusBar mStatusBarComponent;
     private DarkIconManager mDarkIconManager;
     private SignalClusterView mSignalClusterView;
+    private Clock mClockDefault;
+    private Clock mClockCentered;
+    private View mCenterClockLayout;
+
+    private ContentResolver mResolver;
+
+    private int mClockPosition = CLOCK_DATE_POSITION_DEFAULT;
 
     private SignalCallback mSignalCallback = new SignalCallback() {
         @Override
@@ -68,12 +87,67 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         }
     };
 
+    private class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = getContext().getContentResolver();
+
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_DATE_POSITION),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_SHOW_SECONDS),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_SHOW_DATE),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_DATE_FORMAT),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_DATE_STYLE),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_DATE_SIZE_SMALL),
+                    false, this, UserHandle.USER_ALL);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_DATE_POSITION))) {
+                updateClockDatePosition();
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_SHOW_SECONDS))) {
+                updateClockShowSeconds();
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_SHOW_DATE))) {
+                updateClockShowDate();
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_DATE_FORMAT))) {
+                updateClockDateFormat();
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_DATE_STYLE))) {
+                updateClockDateStyle();
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_DATE_SIZE_SMALL))) {
+                updateClockShowDateSizeSmall();
+            }
+        }
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mKeyguardMonitor = Dependency.get(KeyguardMonitor.class);
         mNetworkController = Dependency.get(NetworkController.class);
         mStatusBarComponent = SysUiServiceProvider.getComponent(getContext(), StatusBar.class);
+        SettingsObserver observer = new SettingsObserver(new Handler());
+        observer.observe();
+        mResolver = getContext().getContentResolver();
     }
 
     @Override
@@ -93,10 +167,14 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         Dependency.get(StatusBarIconController.class).addIconGroup(mDarkIconManager);
         mSystemIconArea = mStatusBar.findViewById(R.id.system_icon_area);
         mSignalClusterView = mStatusBar.findViewById(R.id.signal_cluster);
+        mClockDefault = (Clock) mStatusBar.findViewById(R.id.clock);
+        mClockCentered = (Clock) mStatusBar.findViewById(R.id.center_clock);
+        mCenterClockLayout = mStatusBar.findViewById(R.id.center_clock_layout);
         Dependency.get(DarkIconDispatcher.class).addDarkReceiver(mSignalClusterView);
         // Default to showing until we know otherwise.
         showSystemIconArea(false);
         initEmergencyCryptkeeperText();
+        setUpClock();
     }
 
     @Override
@@ -193,10 +271,16 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
 
     public void hideSystemIconArea(boolean animate) {
         animateHide(mSystemIconArea, animate);
+        if (mClockPosition == CLOCK_DATE_POSITION_CENTERED) {
+            animateHide(mCenterClockLayout, animate);
+        }
     }
 
     public void showSystemIconArea(boolean animate) {
         animateShow(mSystemIconArea, animate);
+        if (mClockPosition == CLOCK_DATE_POSITION_CENTERED) {
+            animateShow(mCenterClockLayout, animate);
+        }
     }
 
     public void hideNotificationIconArea(boolean animate) {
@@ -267,5 +351,76 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
             ViewGroup parent = (ViewGroup) emergencyViewStub.getParent();
             parent.removeView(emergencyViewStub);
         }
+    }
+
+    private void setUpClock() {
+        updateClockDatePosition();
+        updateClockShowSeconds();
+        updateClockShowDate();
+        updateClockDateFormat();
+        updateClockDateStyle();
+        updateClockShowDateSizeSmall();
+    }
+
+    private void updateClockDatePosition() {
+        int position =  Settings.System.getInt(mResolver,
+			    Settings.System.STATUS_BAR_CLOCK_DATE_POSITION, CLOCK_DATE_POSITION_DEFAULT);
+
+        if (mClockPosition != position) {
+            mClockPosition = position;
+
+            switch (mClockPosition) {
+                case CLOCK_DATE_POSITION_DEFAULT:
+                    mClockDefault.setClockVisibleByUser(true);
+                    mCenterClockLayout.setVisibility(View.GONE);
+                    mClockCentered.setClockVisibleByUser(false);
+                    break;
+                case CLOCK_DATE_POSITION_CENTERED:
+                    mClockDefault.setClockVisibleByUser(false);
+                    mCenterClockLayout.setVisibility(View.VISIBLE);
+                    mClockCentered.setClockVisibleByUser(true);
+                    break;
+                case CLOCK_DATE_POSITION_HIDDEN:
+                    mClockDefault.setClockVisibleByUser(false);
+                    mCenterClockLayout.setVisibility(View.GONE);
+                    mClockCentered.setClockVisibleByUser(false);
+                    break;
+            }
+        }
+    }
+
+    private void updateClockShowSeconds() {
+        boolean show = Settings.System.getInt(mResolver,
+			    Settings.System.STATUS_BAR_CLOCK_SHOW_SECONDS, 0) == 1;
+        mClockDefault.setShowSeconds(show);
+        mClockCentered.setShowSeconds(show);
+    }
+
+    private void updateClockShowDate() {
+        boolean show = Settings.System.getInt(mResolver,
+			    Settings.System.STATUS_BAR_CLOCK_SHOW_DATE, 0) == 1;
+        mClockDefault.setShowDate(show);
+        mClockCentered.setShowDate(show);
+    }
+
+    private void updateClockDateFormat() {
+        String format = Settings.System.getString(mResolver,
+                Settings.System.STATUS_BAR_CLOCK_DATE_FORMAT);
+        mClockDefault.setDateFormat(format);
+        mClockCentered.setDateFormat(format);
+    }
+
+    private void updateClockDateStyle() {
+        int style = Settings.System.getInt(mResolver,
+			    Settings.System.STATUS_BAR_CLOCK_DATE_STYLE, Clock.DATE_STYLE_REGULAR);
+        mClockDefault.setDateStyle(style);
+        mClockCentered.setDateStyle(style);
+    }
+
+    private void updateClockShowDateSizeSmall() {
+        boolean small = Settings.System.getInt(mResolver,
+			    Settings.System.STATUS_BAR_CLOCK_DATE_SIZE_SMALL, 0) == 1;
+        mClockDefault.setShowDateSizeSmall(small);
+        mClockCentered.setShowDateSizeSmall(small);
     }
 }
