@@ -63,6 +63,8 @@ import android.support.v7.preference.Preference;
 import android.support.v14.preference.SwitchPreference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.android.internal.util.custom.NavbarUtils;
 
@@ -160,6 +162,17 @@ public class NavBarTuner extends TunerPreferenceFragment {
         mTunables.forEach(t -> Dependency.get(TunerService.class).removeTunable(t));
     }
 
+    private void reloadNavigationBar(){
+        updatePrefs(false);
+        NavbarUtils.reloadNavigationBar(getActivity());
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updatePrefs(true);
+            }
+        }, 1000);
+    }
+
     private void addTunable(Tunable tunable, String... keys) {
         mTunables.add(tunable);
         Dependency.get(TunerService.class).addTunable(tunable, keys);
@@ -177,6 +190,7 @@ public class NavBarTuner extends TunerPreferenceFragment {
             String val = (String) newValue;
             if ("default".equals(val)) val = null;
             Dependency.get(TunerService.class).setValue(NAV_BAR_VIEWS, val);
+            reloadNavigationBar();
             return true;
         });
     }
@@ -211,6 +225,7 @@ public class NavBarTuner extends TunerPreferenceFragment {
             mHandler.post(() -> {
                 setValue(setting, type, keycode, icon);
                 updateSummary(icon);
+                reloadNavigationBar();
             });
             return true;
         };
@@ -230,6 +245,7 @@ public class NavBarTuner extends TunerPreferenceFragment {
                         }
                         keycode.setSummary(code + "");
                         setValue(setting, type, keycode, icon);
+                        reloadNavigationBar();
                     }).show();
             return true;
         });
