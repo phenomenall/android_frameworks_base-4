@@ -36,4 +36,6 @@
     <!-- Allow SystemUI to show the shutdown confirm dialog -->
     <bool name="config_showSysuiConfirmShutdown">true</bool>
 
+    <!-- Doze Addon: should the TYPE_PROXIMITY sensor be used as a pulse signal. -->
+    <bool name="config_dozePulseHandWave">true</bool>
 </resources>

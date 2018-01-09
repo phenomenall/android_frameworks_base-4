@@ -51,4 +51,8 @@
   <java-symbol type="string" name="global_restart_confirm_message" />
   <java-symbol type="string" name="global_restart_recovery_confirm_message" />
   <java-symbol type="string" name="global_restart_bootloader_confirm_message" />
+
+  <!-- Doze Addon: should the TYPE_PROXIMITY sensor be used as a pulse signal. -->
+  <java-symbol type="bool" name="config_dozePulseHandWave" />
+
 </resources>
