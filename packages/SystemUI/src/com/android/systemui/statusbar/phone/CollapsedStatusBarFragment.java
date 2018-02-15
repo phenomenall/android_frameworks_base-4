@@ -493,6 +493,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
                 getContext().getContentResolver(), Settings.System.STATUS_BAR_CARRIER, 1,
                 UserHandle.USER_CURRENT);
         setCarrierLabel(animate);
+        mStatusBarComponent.updateBatterySettings();
     }
 
     private void setCarrierLabel(boolean animate) {
