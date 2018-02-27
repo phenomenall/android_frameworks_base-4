@@ -3971,6 +3971,20 @@ public final class Settings {
         public static final String HIDE_LOCKSCREEN_ALARM = "hide_lockscreen_alarm";
 
         /**
+         * Hold current font name and name of the originating package Uses "|" as a delimiter
+         *
+         * @hide
+         */
+        public static final String FONT_INFO = "font_info";
+
+        /**
+         * Hold list of installed font provider packages. Uses "|" as a delimiter
+         *
+         * @hide
+         */
+        public static final String FONT_PACKAGES = "font_packages";
+
+        /**
          * Clock (and date) position on the status bar
          * 0: Right clock
          * 1: Center clock
