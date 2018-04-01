@@ -33,4 +33,7 @@
         <item>bootloader</item>
     </string-array>
 
+    <!-- Allow SystemUI to show the shutdown confirm dialog -->
+    <bool name="config_showSysuiConfirmShutdown">true</bool>
+
 </resources>
