@@ -37,6 +37,7 @@ import android.widget.ImageView;
 import android.widget.ImageSwitcher;
 import android.widget.LinearLayout;
 
+import com.android.internal.util.UserContentObserver;
 import com.android.systemui.Dependency;
 import com.android.systemui.Interpolators;
 import com.android.systemui.R;
@@ -195,7 +196,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         mTickerObserver = new TickerObserver(new Handler());
     }
 
-    class TickerObserver extends ContentObserver {
+    class TickerObserver extends UserContentObserver {
 
         TickerObserver(Handler handler) {
             super(handler);
@@ -472,7 +473,6 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         }
     }
 
-<<<<<<< HEAD
     private void setUpClock() {
         updateClockDatePosition();
         updateClockShowSeconds();
