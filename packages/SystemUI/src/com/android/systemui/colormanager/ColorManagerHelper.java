@@ -38,6 +38,10 @@ public class ColorManagerHelper {
             "com.toxyc.theme.dark",
             "com.toxyc.theme.settings.dark",
     };
+    public static final String[] TOXYC_THEME = {
+            "com.toxyc.theme.toxyc",
+            "com.toxyc.theme.settings.toxyc",
+    };
 
     // Accent Packages
     private static final String ACCENT_DEFAULT = "default";
@@ -106,6 +110,17 @@ public class ColorManagerHelper {
         OverlayInfo themeInfo = null;
         try {
             themeInfo = om.getOverlayInfo("com.toxyc.theme.black",
+                    userId);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        return themeInfo != null && themeInfo.isEnabled();
+    }
+
+    public static boolean isUsingToxycTheme(IOverlayManager om, int userId) {
+        OverlayInfo themeInfo = null;
+        try {
+            themeInfo = om.getOverlayInfo("com.toxyc.theme.toxyc",
                     userId);
         } catch (RemoteException e) {
             e.printStackTrace();
