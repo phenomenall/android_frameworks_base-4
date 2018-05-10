@@ -42,6 +42,10 @@ public class ColorManagerHelper {
             "com.toxyc.theme.toxyc",
             "com.toxyc.theme.settings.toxyc",
     };
+    public static final String[] HAZARD_THEME = {
+            "com.toxyc.theme.hazard",
+            "com.toxyc.theme.settings.hazard",
+    };
 
     // Accent Packages
     private static final String ACCENT_DEFAULT = "default";
@@ -121,6 +125,17 @@ public class ColorManagerHelper {
         OverlayInfo themeInfo = null;
         try {
             themeInfo = om.getOverlayInfo("com.toxyc.theme.toxyc",
+                    userId);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        return themeInfo != null && themeInfo.isEnabled();
+    }
+
+    public static boolean isUsingHazardTheme(IOverlayManager om, int userId) {
+        OverlayInfo themeInfo = null;
+        try {
+            themeInfo = om.getOverlayInfo("com.toxyc.theme.hazard",
                     userId);
         } catch (RemoteException e) {
             e.printStackTrace();

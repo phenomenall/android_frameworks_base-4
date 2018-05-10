@@ -7029,6 +7029,7 @@ public final class Settings {
          * 2 - Dark
          * 3 - Black
          * 4 - Toxyc
+         * 5 - Hazard
          * @hide
          */
         public static final String DEVICE_THEME = "device_theme";
