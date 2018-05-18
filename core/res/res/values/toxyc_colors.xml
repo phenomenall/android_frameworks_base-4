@@ -22,6 +22,12 @@
     <color name="bottom_nav_icon_inactive">#9C9C9C</color>
     <color name="accent_device_default_light_alpha">#9C9C9C</color>
 
+    <!-- Custom Analog clock -->
+    <color name="analog_clock_border_color">#212121</color>
+    <color name="analog_clock_face_color">#FFFFFF</color>
+    <color name="analog_clock_hand_hour_color">@*android:color/accent_device_default_light</color>
+    <color name="analog_clock_hand_minute_color">#212121</color>
+
     <!-- Resolver -->
     <color name="resolver_list_bg">@android:color/white</color>
 
