@@ -7135,6 +7135,12 @@ public final class Settings {
         public static final String DEVICE_ACCENT = "device_accent";
 
         /**
+         * Whether specific elements use an alpha when theming
+         * @hide
+         */
+        public static final String DEVICE_THEME_ALPHA = "device_theme_alpha";
+
+        /**
          * Whether or not the automatic storage manager is enabled and should run on the device.
          *
          * @hide
