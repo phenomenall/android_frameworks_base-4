@@ -16,13 +16,13 @@ package com.android.systemui.globalactions;
 
 import android.app.Dialog;
 import android.app.KeyguardManager;
-import android.app.WallpaperColors;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.os.PowerManager;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -45,6 +45,7 @@ import com.android.systemui.statusbar.policy.KeyguardMonitor;
 public class GlobalActionsImpl implements GlobalActions {
 
     private static final float SHUTDOWN_SCRIM_ALPHA = 0.95f;
+    private static final float CUSTOM_SHUTDOWN_SCRIM_ALPHA = 0.00f;
 
     private final Context mContext;
     private final KeyguardMonitor mKeyguardMonitor;
@@ -72,7 +73,7 @@ public class GlobalActionsImpl implements GlobalActions {
     public void showShutdownUi(boolean isReboot, boolean isRebootRecovery,
                 boolean isRebootBootloader, String reason) {
         GradientDrawable background = new GradientDrawable(mContext);
-        background.setAlpha((int) (SHUTDOWN_SCRIM_ALPHA * 255));
+        background.setAlpha((int) (showWallpaperTint(mContext) ? SHUTDOWN_SCRIM_ALPHA * 255 : CUSTOM_SHUTDOWN_SCRIM_ALPHA * 255));
 
         Dialog d = new Dialog(mContext,
                 com.android.systemui.R.style.Theme_SystemUI_Dialog_GlobalActions);
@@ -205,5 +206,10 @@ public class GlobalActionsImpl implements GlobalActions {
         background.setScreenSize(displaySize.x, displaySize.y);
 
         d.show();
+    }
+
+    private static boolean showWallpaperTint(Context context) {
+        return Settings.System.getIntForUser(context.getContentResolver(),
+                Settings.System.WALLPAPER_POWER_MENU_TINT, 1, UserHandle.USER_CURRENT) == 1;
     }
 }
