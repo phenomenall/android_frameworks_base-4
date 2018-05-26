@@ -304,10 +304,10 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
     public void hideSystemIconArea(boolean animate) {
         animateHide(mSystemIconArea, animate, true);
         if (mClockPosition == CLOCK_DATE_POSITION_CENTERED) {
-            animateHide(mCenterClockLayout, animate);
+            animateHide(mCenterClockLayout, animate, true);
         }
         if (mClockPosition == CLOCK_DATE_POSITION_LEFT) {
-            animateHide(mClockLeft, animate);
+            animateHide(mClockLeft, animate, true);
         }
     }
 
