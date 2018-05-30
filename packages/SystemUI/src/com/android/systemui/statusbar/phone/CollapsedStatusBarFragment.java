@@ -33,6 +33,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.android.systemui.Dependency;
@@ -82,6 +83,11 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
 
     private int mClockPosition = CLOCK_DATE_POSITION_DEFAULT;
 
+    // Toxyc Status Logo
+    private ImageView mTOXLogo;
+    private ImageView mTOXLogoRight;
+    private int mShowLogo;
+
     // Custom Carrier
     private View mCustomCarrierLabel;
     private int mShowCarrierLabel;
@@ -96,6 +102,9 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         void observe() {
             getContext().getContentResolver().registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_CARRIER),
+                    false, this, UserHandle.USER_ALL);
+            getContext().getContentResolver().registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_LOGO),
                     false, this, UserHandle.USER_ALL);
         }
 
@@ -200,6 +209,10 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         mCenterClockLayout = mStatusBar.findViewById(R.id.center_clock_layout);
         Dependency.get(DarkIconDispatcher.class).addDarkReceiver(mSignalClusterView);
         mCustomCarrierLabel = mStatusBar.findViewById(R.id.statusbar_carrier_text);
+        mTOXLogo = (ImageView) mStatusBar.findViewById(R.id.status_bar_logo);
+        mTOXLogoRight = (ImageView) mStatusBar.findViewById(R.id.status_bar_logo_right);
+        Dependency.get(DarkIconDispatcher.class).addDarkReceiver(mTOXLogo);
+        Dependency.get(DarkIconDispatcher.class).addDarkReceiver(mTOXLogoRight);
         updateSettings(false);
         // Default to showing until we know otherwise.
         showSystemIconArea(false);
@@ -230,6 +243,8 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         super.onDestroyView();
         Dependency.get(DarkIconDispatcher.class).removeDarkReceiver(mSignalClusterView);
         Dependency.get(StatusBarIconController.class).removeIconGroup(mDarkIconManager);
+        Dependency.get(DarkIconDispatcher.class).removeDarkReceiver(mTOXLogo);
+        Dependency.get(DarkIconDispatcher.class).removeDarkReceiver(mTOXLogoRight);
         if (mNetworkController.hasEmergencyCryptKeeperText()) {
             mNetworkController.removeCallback(mSignalCallback);
         }
@@ -309,6 +324,9 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         if (mClockPosition == CLOCK_DATE_POSITION_LEFT) {
             animateHide(mClockLeft, animate, true);
         }
+        if (mShowLogo == 2) {
+            animateHide(mTOXLogoRight, animate, false);
+        }
     }
 
     public void showSystemIconArea(boolean animate) {
@@ -319,14 +337,23 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         if (mClockPosition == CLOCK_DATE_POSITION_LEFT) {
             animateShow(mClockLeft, animate);
         }
+        if (mShowLogo == 2) {
+            animateShow(mTOXLogoRight, animate);
+        }
     }
 
      public void hideNotificationIconArea(boolean animate) {
         animateHide(mNotificationIconAreaInner, animate, true);
+        if (mShowLogo == 1) {
+            animateHide(mTOXLogo, animate, false);
+        }
     }
 
     public void showNotificationIconArea(boolean animate) {
         animateShow(mNotificationIconAreaInner, animate);
+        if (mShowLogo == 1) {
+            animateShow(mTOXLogo, animate);
+        }
     }
 
     public void hideCarrierName(boolean animate) {
@@ -338,6 +365,9 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
     public void showCarrierName(boolean animate) {
         if (mCustomCarrierLabel != null) {
             setCarrierLabel(animate);
+        }
+        if (mShowLogo == 1) {
+            animateShow(mTOXLogo, animate);
         }
     }
 
@@ -493,6 +523,27 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
                 getContext().getContentResolver(), Settings.System.STATUS_BAR_CARRIER, 1,
                 UserHandle.USER_CURRENT);
         setCarrierLabel(animate);
+        mShowLogo = Settings.System.getIntForUser(
+                getContext().getContentResolver(), Settings.System.STATUS_BAR_LOGO, 0,
+                UserHandle.USER_CURRENT);
+        if (mNotificationIconAreaInner != null) {
+            if (mShowLogo == 1) {
+                if (mNotificationIconAreaInner.getVisibility() == View.VISIBLE) {
+                    animateShow(mTOXLogo, animate);
+                }
+            } else if (mShowLogo != 1) {
+                animateHide(mTOXLogo, animate, false);
+            }
+        }
+        if (mSystemIconArea != null) {
+            if (mShowLogo == 2) {
+                if (mSystemIconArea.getVisibility() == View.VISIBLE) {
+                    animateShow(mTOXLogoRight, animate);
+                }
+            } else if (mShowLogo != 2) {
+                animateHide(mTOXLogoRight, animate, false);
+            }
+        }
         mStatusBarComponent.updateBatterySettings();
     }
 
