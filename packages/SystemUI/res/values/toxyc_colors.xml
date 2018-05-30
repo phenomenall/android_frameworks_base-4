@@ -35,4 +35,7 @@
     <color name="floating_action_button_icon_color">@android:color/white</color>
     <color name="floating_action_dismiss_all">@android:color/white</color>
 
+    <!-- Power menu wallpaper tint off color -->
+    <color name="power_menu_wallpaper_tint_off_color">#80202020</color>
+
 </resources>
