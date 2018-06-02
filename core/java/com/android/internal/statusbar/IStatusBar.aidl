@@ -130,5 +130,4 @@ oneway interface IStatusBar
                 boolean isRebootRecovery, String reason);
     void showConfirmShutdownUi(boolean isReboot, boolean isRebootBootloader,
                 boolean isRebootRecovery, String reason);
-    void toggleNavigationBar(boolean enable);
 }
