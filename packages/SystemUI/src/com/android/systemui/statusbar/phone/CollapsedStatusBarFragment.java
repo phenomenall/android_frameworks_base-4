@@ -406,9 +406,6 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         if (mCustomCarrierLabel != null) {
             setCarrierLabel(animate);
         }
-        if (mShowLogo == 1) {
-            animateShow(mTOXLogo, animate);
-        }
     }
 
     /**
@@ -562,7 +559,6 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         mShowCarrierLabel = Settings.System.getIntForUser(
                 getContext().getContentResolver(), Settings.System.STATUS_BAR_CARRIER, 1,
                 UserHandle.USER_CURRENT);
-        setCarrierLabel(animate);
         mShowLogo = Settings.System.getIntForUser(
                 getContext().getContentResolver(), Settings.System.STATUS_BAR_LOGO, 0,
                 UserHandle.USER_CURRENT);
@@ -584,6 +580,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
                 animateHide(mTOXLogoRight, animate, false);
             }
         }
+        setCarrierLabel(animate);
         mStatusBarComponent.updateBatterySettings();
     }
 
