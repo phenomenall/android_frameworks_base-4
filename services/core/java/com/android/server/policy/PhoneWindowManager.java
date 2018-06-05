@@ -6126,6 +6126,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         final boolean canceled = event.isCanceled();
         final int keyCode = event.getKeyCode();
+        final boolean virtualKey = event.getDeviceId() == KeyCharacterMap.VIRTUAL_KEYBOARD;
 
         final boolean isInjected = (policyFlags & WindowManagerPolicy.FLAG_INJECTED) != 0;
 
@@ -6203,9 +6204,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         boolean useHapticFeedback = down
                 && (policyFlags & WindowManagerPolicy.FLAG_VIRTUAL) != 0
-                && event.getRepeatCount() == 0
-                && !isHwKeysDisabled()
-                && !keyguardOn();
+                && event.getRepeatCount() == 0;
+
+        if (!virtualKey){
+            if (isHwKeysDisabled()){
+                useHapticFeedback = false;
+            }else if (keyCode != KeyEvent.KEYCODE_BACK && keyguardOn()){
+                useHapticFeedback = false;
+            }
+        }
 
         // Specific device key handling
         if (mDeviceKeyHandler != null) {
