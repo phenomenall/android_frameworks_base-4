@@ -481,7 +481,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
 
     private void updateClockDatePosition() {
         int position =  Settings.System.getInt(mResolver,
-			    Settings.System.STATUS_BAR_CLOCK_DATE_POSITION, CLOCK_DATE_POSITION_DEFAULT);
+			    Settings.System.STATUS_BAR_CLOCK_DATE_POSITION, CLOCK_DATE_POSITION_CENTERED);
 
         if (mClockPosition != position) {
             mClockPosition = position;
@@ -557,7 +557,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
 
     public void updateSettings(boolean animate) {
         mShowCarrierLabel = Settings.System.getIntForUser(
-                getContext().getContentResolver(), Settings.System.STATUS_BAR_CARRIER, 1,
+                getContext().getContentResolver(), Settings.System.STATUS_BAR_CARRIER, 0,
                 UserHandle.USER_CURRENT);
         mShowLogo = Settings.System.getIntForUser(
                 getContext().getContentResolver(), Settings.System.STATUS_BAR_LOGO, 0,

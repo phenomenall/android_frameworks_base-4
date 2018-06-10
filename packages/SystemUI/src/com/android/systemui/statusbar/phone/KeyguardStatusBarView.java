@@ -102,7 +102,7 @@ public class KeyguardStatusBarView extends RelativeLayout
 
     private void showStatusBarCarrier() {
         mShowCarrierLabel = Settings.System.getIntForUser(getContext().getContentResolver(),
-                Settings.System.STATUS_BAR_CARRIER, 1, UserHandle.USER_CURRENT);
+                Settings.System.STATUS_BAR_CARRIER, 0, UserHandle.USER_CURRENT);
     }
 
     @Override
