@@ -4218,6 +4218,15 @@ public final class Settings {
         public static final String VOLUME_ROCKER_WAKE = "volume_rocker_wake";
 
         /**
+         * ToxycOTA support
+         * @hide
+         */
+        public static final String OTA_LAST_CHECK = "ota_last_check";
+        public static final String OTA_LATEST_VERSION = "ota_latest_version";
+        public static final String OTA_MAINTAINER = "ota_maintainer";
+        public static final String OTA_UPDATE_INTERVAL = "ota_update_interval";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
