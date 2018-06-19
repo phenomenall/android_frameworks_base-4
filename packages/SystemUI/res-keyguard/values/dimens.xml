@@ -45,7 +45,7 @@
     <dimen name="bottom_text_spacing_digital">-1dp</dimen>
     <dimen name="widget_label_font_size">14sp</dimen>
     <dimen name="widget_label_custom_font_size">14sp</dimen>
-    <dimen name="widget_big_font_size">52dp</dimen>
+    <dimen name="widget_big_font_size">65dp</dimen>
 
     <!-- The y translation to apply at the start in appear animations. -->
     <dimen name="appear_y_translation_start">32dp</dimen>
@@ -63,4 +63,11 @@
 
     <!-- The translation for disappearing security views after having solved them. -->
     <dimen name="disappear_y_translation">-32dp</dimen>
+
+    <!-- the size for all the clock sizes -->
+    <dimen name="widget_clock_toxyc_size">175dp</dimen>
+
+     <!-- Our custom clock values -->
+     <dimen name="widget_toxyc_accent_font_size">45dp</dimen>
+
 </resources>
